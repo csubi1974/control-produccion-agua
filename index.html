@@ -293,6 +293,36 @@
             font-weight: 500;
         }
 
+        /* Estilos específicos para selector de tipo de botellón */
+        select#tipoBotellon {
+            width: 100%;
+            font-size: 18px;
+            padding: 15px;
+            min-height: 50px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px;
+            padding-right: 40px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        select#tipoBotellon:focus {
+            outline: none;
+            border-color: #2196F3;
+            background: white;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+            transform: translateY(-1px);
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 0;
@@ -341,6 +371,14 @@
                 padding: 20px;
                 border-radius: 15px;
             }
+            
+            /* Mejoras para dispositivos táctiles */
+            select#tipoBotellon {
+                font-size: 20px !important;
+                padding: 18px !important;
+                min-height: 55px !important;
+                touch-action: manipulation;
+            }
         }
     </style>
 </head>
@@ -383,7 +421,7 @@
                     
                     <div class="input-group">
                         <label for="tipoBotellon">🧴 Tipo de Botellón:</label>
-                        <select id="tipoBotellon" class="form-control">
+                        <select id="tipoBotellon">
                             <option value="20L" selected>Botellón 20 Litros</option>
                             <option value="12L">Botellón 12 Litros</option>
                             <option value="10L">Botellón 10 Litros</option>
