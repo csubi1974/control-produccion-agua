@@ -923,15 +923,7 @@
         
         // Detectar si la app está instalada como PWA
         let deferredPrompt;
-        
-        // Agregar logs de depuración
-        console.log('🔍 PWA Debug: Iniciando detección de instalabilidad');
-        console.log('🔍 PWA Debug: HTTPS?', location.protocol === 'https:' || location.hostname === 'localhost');
-        console.log('🔍 PWA Debug: Service Worker soportado?', 'serviceWorker' in navigator);
-        console.log('🔍 PWA Debug: Modo standalone?', window.matchMedia('(display-mode: standalone)').matches);
-        
         window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('🎉 PWA Debug: Evento beforeinstallprompt detectado!');
             // Prevenir que Chrome 67 y anteriores muestren automáticamente el prompt
             e.preventDefault();
             // Guardar el evento para poder dispararlo después
@@ -941,18 +933,6 @@
             showInstallButton();
         });
         
-        // Detectar si el evento no se dispara después de un tiempo
-        setTimeout(() => {
-            if (!deferredPrompt) {
-                console.log('⚠️ PWA Debug: beforeinstallprompt no se ha disparado después de 5 segundos');
-                console.log('⚠️ PWA Debug: Posibles razones:');
-                console.log('   - La PWA ya está instalada');
-                console.log('   - Faltan criterios de instalabilidad');
-                console.log('   - El navegador no soporta PWA');
-                console.log('   - Problemas con manifest.json o service worker');
-            }
-        }, 5000);
-        
         function showInstallButton() {
             // Crear botón de instalación si no existe
             if (!document.getElementById('installButton')) {
@@ -960,11 +940,10 @@
                 installButton.id = 'installButton';
                 installButton.className = 'btn btn-info';
                 installButton.innerHTML = '📱 Instalar App';
-                installButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 1000; border-radius: 50px; padding: 15px 20px; font-size: 14px; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4); background: #2196F3; color: white; border: none; cursor: pointer;';
+                installButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 1000; border-radius: 50px; padding: 15px 20px; font-size: 14px; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);';
                 
                 installButton.addEventListener('click', async () => {
                     if (deferredPrompt) {
-                        console.log('✅ Usando prompt nativo');
                         // Mostrar el prompt de instalación
                         deferredPrompt.prompt();
                         // Esperar a que el usuario responda
@@ -974,48 +953,10 @@
                         deferredPrompt = null;
                         // Ocultar el botón
                         installButton.remove();
-                    } else {
-                        console.log('⚠️ No hay prompt nativo, mostrando instrucciones');
-                        showManualInstallInstructions();
                     }
                 });
                 
                 document.body.appendChild(installButton);
-            }
-        }
-        
-        function showManualInstallInstructions() {
-            const instructions = `
-🔧 CÓMO INSTALAR ESTA PWA:
-
-📱 CHROME/EDGE:
-• Haz clic en el menú (⋮) del navegador
-• Busca "Instalar Control Producción Agua..."
-• O busca el ícono 📱 en la barra de direcciones
-
-🦊 FIREFOX:
-• Menú → "Instalar esta aplicación"
-
-🍎 SAFARI (iOS):
-• Botón Compartir → "Añadir a pantalla de inicio"
-
-🤖 ANDROID:
-• Menú del navegador → "Añadir a pantalla de inicio"
-
-💡 NOTA: Si no ves estas opciones, es posible que:
-• La PWA ya esté instalada
-• Tu navegador no soporte PWAs
-• Necesites usar HTTPS (prueba en Vercel)
-            `;
-            
-            alert(instructions);
-        }
-        
-        // Mostrar botón de instalación siempre (no solo cuando hay prompt)
-        function createPermanentInstallButton() {
-            // Solo crear si no estamos en modo standalone (ya instalada)
-            if (!window.matchMedia('(display-mode: standalone)').matches && !window.navigator.standalone) {
-                showInstallButton();
             }
         }
         
@@ -1039,13 +980,6 @@
         if (isPWA()) {
             document.body.classList.add('pwa-mode');
         }
-        
-        // Crear botón de instalación permanente después de cargar
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                createPermanentInstallButton();
-            }, 2000); // Esperar 2 segundos para que se registre el SW
-        });
     </script>
 </body>
 </html>
