@@ -382,6 +382,15 @@
                     </div>
                     
                     <div class="input-group">
+                        <label for="tipoBotellon">🧴 Tipo de Botellón:</label>
+                        <select id="tipoBotellon" class="form-control">
+                            <option value="20L" selected>Botellón 20 Litros</option>
+                            <option value="12L">Botellón 12 Litros</option>
+                            <option value="10L">Botellón 10 Litros</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
                         <label for="fecha">Fecha:</label>
                         <input type="date" id="fecha">
                     </div>
@@ -457,9 +466,13 @@
             id BIGSERIAL PRIMARY KEY,
             botellones INTEGER NOT NULL,
             fecha DATE NOT NULL,
+            tipo_botellon VARCHAR(20) DEFAULT '20L',
             timestamp TIMESTAMPTZ DEFAULT NOW(),
             created_at TIMESTAMPTZ DEFAULT NOW()
         );
+        
+        -- Si ya tienes la tabla creada, agrega la nueva columna:
+        -- ALTER TABLE produccion_agua ADD COLUMN tipo_botellon VARCHAR(20) DEFAULT '20L';
         
         -- Habilitar Row Level Security (opcional pero recomendado)
         ALTER TABLE produccion_agua ENABLE ROW LEVEL SECURITY;
@@ -610,24 +623,15 @@
                 
                 // Formatear fecha y hora
                 const fechaRegistro = new Date(item.fecha).toLocaleDateString('es-ES');
-                
-                // Obtener hora de ingreso del registro (timestamp, created_at, o hora actual como fallback)
-                let horaRegistro = '';
-                if (item.timestamp) {
-                    horaRegistro = new Date(item.timestamp).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
-                } else if (item.created_at) {
-                    horaRegistro = new Date(item.created_at).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
-                } else {
-                    // Si no hay timestamp, mostrar hora actual como referencia
-                    horaRegistro = new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
-                }
+                const horaRegistro = item.timestamp ? new Date(item.timestamp).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'}) : 
+                                   (item.created_at ? new Date(item.created_at).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'}) : '');
                 
                 div.innerHTML = `
                     <div>
                         <span>${fechaRegistro}</span>
-                        <br><small style="color: #666; font-size: 0.85em;">⏰ ${horaRegistro}</small>
+                        ${horaRegistro ? `<br><small style="color: #666; font-size: 0.85em;">${horaRegistro}</small>` : ''}
                     </div>
-                    <span style="font-weight: bold; color: #2196F3;">${item.botellones} bot.</span>
+                    <span style="font-weight: bold; color: #2196F3;">${item.botellones} bot. (${item.tipo_botellon || '20L'})</span>
                 `;
                 recentList.appendChild(div);
             });
@@ -637,6 +641,7 @@
         async function registrarProduccion() {
             const botellones = parseInt(document.getElementById('botellones').value);
             const fecha = document.getElementById('fecha').value;
+            const tipoBotellon = document.getElementById('tipoBotellon').value;
             
             if (!botellones || botellones <= 0) {
                 alert('⚠️ Por favor ingresa una cantidad válida de botellones');
@@ -651,6 +656,7 @@
             const nuevaProduccion = {
                 botellones: botellones,
                 fecha: fecha,
+                tipo_botellon: tipoBotellon,
                 timestamp: new Date().toISOString(),
                 created_at: new Date().toISOString()
             };
@@ -742,13 +748,22 @@
             const productionList = document.getElementById('productionList');
             productionList.innerHTML = '';
             
-            // Agrupar por fecha y sumar
+            // Agrupar por fecha y tipo, y sumar
             const produccionPorFecha = {};
+            let totalLitros = 0;
+            
             datos.forEach(item => {
-                if (produccionPorFecha[item.fecha]) {
-                    produccionPorFecha[item.fecha] += item.botellones;
+                const tipoBotellon = item.tipo_botellon || '20L';
+                const litrosPorBotellon = parseInt(tipoBotellon.replace('L', ''));
+                totalLitros += item.botellones * litrosPorBotellon;
+                
+                if (!produccionPorFecha[item.fecha]) {
+                    produccionPorFecha[item.fecha] = {};
+                }
+                if (produccionPorFecha[item.fecha][tipoBotellon]) {
+                    produccionPorFecha[item.fecha][tipoBotellon] += item.botellones;
                 } else {
-                    produccionPorFecha[item.fecha] = item.botellones;
+                    produccionPorFecha[item.fecha][tipoBotellon] = item.botellones;
                 }
             });
             
@@ -758,12 +773,32 @@
             fechasOrdenadas.forEach(fecha => {
                 const div = document.createElement('div');
                 div.className = 'production-item';
+                
+                // Crear resumen por tipo para esta fecha
+                const tiposSummary = Object.entries(produccionPorFecha[fecha])
+                    .map(([tipo, cantidad]) => `${cantidad} bot. (${tipo})`)
+                    .join(', ');
+                
+                const totalBotellonesFecha = Object.values(produccionPorFecha[fecha])
+                    .reduce((sum, cantidad) => sum + cantidad, 0);
+                
                 div.innerHTML = `
-                    <span>${new Date(fecha).toLocaleDateString('es-ES')}</span>
-                    <span style="font-weight: bold; color: #2196F3;">${produccionPorFecha[fecha]} botellones</span>
+                    <div>
+                        <span>${new Date(fecha).toLocaleDateString('es-ES')}</span>
+                        <br><small style="color: #666; font-size: 0.85em;">${tiposSummary}</small>
+                    </div>
+                    <span style="font-weight: bold; color: #2196F3;">${totalBotellonesFecha} bot.</span>
                 `;
                 productionList.appendChild(div);
             });
+            
+            // Agregar información de litros totales
+            if (totalLitros > 0) {
+                const litrosDiv = document.createElement('div');
+                litrosDiv.style.cssText = 'text-align: center; margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 8px; color: #1976d2; font-weight: bold;';
+                litrosDiv.innerHTML = `💧 Total: ${totalLitros.toLocaleString()} litros producidos`;
+                productionList.appendChild(litrosDiv);
+            }
             
             statsContainer.style.display = 'block';
             statsContainer.scrollIntoView({ behavior: 'smooth' });
