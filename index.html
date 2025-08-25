@@ -692,7 +692,15 @@
         // Mostrar últimos registros
         async function mostrarUltimosRegistros() {
             const datos = await obtenerDatos();
-            const ultimosRegistros = datos.slice(0, 5); // Primeros 5 registros (ya ordenados por fecha desc)
+            
+            // Ordenar por timestamp/created_at más reciente primero
+            const datosOrdenados = datos.sort((a, b) => {
+                const fechaA = new Date(a.timestamp || a.created_at || a.fecha);
+                const fechaB = new Date(b.timestamp || b.created_at || b.fecha);
+                return fechaB - fechaA; // Más reciente primero
+            });
+            
+            const ultimosRegistros = datosOrdenados.slice(0, 5); // Primeros 5 registros más recientes
             const recentList = document.getElementById('recentList');
             
             if (ultimosRegistros.length === 0) {
