@@ -575,11 +575,11 @@
         document.getElementById('fechaFin').valueAsDate = new Date();
 
         // Inicializar la aplicación
-        window.onload = async function() {
+        async function inicializarApp() {
             await inicializarSupabase();
             await actualizarResumenHoy();
             await mostrarUltimosRegistros();
-        };
+        }
         
         // Inicializar Supabase y crear tabla si no existe
         async function inicializarSupabase() {
@@ -898,6 +898,9 @@
         // Registrar Service Worker para PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', async () => {
+                // Inicializar la aplicación
+                await inicializarApp();
+                
                 try {
                     const registration = await navigator.serviceWorker.register('/sw.js');
                     console.log('Service Worker registrado exitosamente:', registration.scope);
