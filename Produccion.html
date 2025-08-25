@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Producción Agua Purificada</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 25px 20px;
+        }
+
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .nav-btn {
+            padding: 18px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            color: #2196F3;
+            border: 2px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            border-color: #2196F3;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .menu-section {
+            display: none;
+        }
+
+        .menu-section.active {
+            display: block;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            text-align: center;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #2196F3;
+            background: white;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .stats {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid #f0f0f0;
+        }
+
+        .stats h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 16px;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #2196F3;
+            font-size: 18px;
+        }
+
+        .production-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .production-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            border-left: 4px solid #2196F3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .production-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .success-message {
+            background: linear-gradient(45deg, #d4edda, #c3e6cb);
+            color: #155724;
+            padding: 18px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        }
+
+        .date-range {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .recent-productions {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid #f0f0f0;
+        }
+
+        .recent-productions h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .today-summary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .today-summary h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            opacity: 0.9;
+        }
+
+        .today-summary .big-number {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .today-summary div:last-child {
+            font-size: 16px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+            
+            .container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+                box-shadow: none;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            input[type="number"], input[type="date"] {
+                font-size: 16px;
+                padding: 16px;
+            }
+            
+            .btn {
+                font-size: 16px;
+                padding: 18px;
+            }
+
+            .nav-btn {
+                font-size: 14px;
+                padding: 14px;
+                border-radius: 20px;
+            }
+            
+            .today-summary .big-number {
+                font-size: 42px;
+            }
+            
+            .recent-productions, .stats {
+                padding: 20px;
+                border-radius: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💧 Control de Producción</h1>
+            <p>Agua Purificada</p>
+        </div>
+        
+        <div class="content">
+            <!-- Navegación -->
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="mostrarSeccion('registro')">
+                    ➕ Registrar
+                </button>
+                <button class="nav-btn" onclick="mostrarSeccion('consultas')">
+                    📊 Consultas
+                </button>
+            </div>
+
+            <!-- Sección de Registro -->
+            <div id="registro" class="menu-section active">
+                <div class="success-message" id="successMessage">
+                    ✅ Producción registrada correctamente
+                </div>
+
+                <!-- Resumen del día actual -->
+                <div class="today-summary" id="todaySummary">
+                    <h3>Producción de Hoy</h3>
+                    <div class="big-number" id="todayTotal">0</div>
+                    <div>botellones</div>
+                </div>
+                
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="botellones">Botellones Producidos:</label>
+                        <input type="number" id="botellones" placeholder="Ej: 50" min="1" step="1">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="fecha">Fecha:</label>
+                        <input type="date" id="fecha">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="registrarProduccion()">
+                        ➕ Registrar Producción
+                    </button>
+                </div>
+
+                <!-- Últimos registros -->
+                <div class="recent-productions" id="recentProductions">
+                    <h3>📋 Últimos Registros</h3>
+                    <div id="recentList"></div>
+                </div>
+            </div>
+
+            <!-- Sección de Consultas -->
+            <div id="consultas" class="menu-section">
+                <div class="input-section">
+                    <h3 style="margin-bottom: 20px; color: #333; text-align: center;">📊 Consultar Producción</h3>
+                    
+                    <button class="btn btn-secondary" onclick="mostrarProduccionHoy()">
+                        📅 Producción de Hoy
+                    </button>
+                    
+                    <button class="btn btn-info" onclick="mostrarProduccionMes()">
+                        📈 Producción del Mes
+                    </button>
+                    
+                    <div class="date-range">
+                        <input type="date" id="fechaInicio" placeholder="Fecha inicio">
+                        <input type="date" id="fechaFin" placeholder="Fecha fin">
+                    </div>
+                    
+                    <button class="btn btn-info" onclick="mostrarProduccionRango()">
+                        🔍 Consultar Rango
+                    </button>
+                </div>
+                
+                <div class="stats" id="statsContainer" style="display: none;">
+                    <h3>📋 Resumen de Producción</h3>
+                    <div class="stat-item">
+                        <span>Total Botellones:</span>
+                        <span class="stat-value" id="totalBotellones">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Promedio Diario:</span>
+                        <span class="stat-value" id="promedioDiario">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Días Registrados:</span>
+                        <span class="stat-value" id="diasRegistrados">0</span>
+                    </div>
+                    
+                    <div class="production-list" id="productionList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase CDN -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Configuración de Supabase
+        // Credenciales del proyecto Supabase
+        const SUPABASE_URL = 'https://zvzqaxiqvztkynfkueeq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2enFheGlxdnp0a3luZmt1ZWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYxMzYxOTcsImV4cCI6MjA3MTcxMjE5N30.WCAgIVoyxSI3fuEc_i-svU6VkJS4gLJSsTBqMhk7bds';
+        
+        // 4. Crea la tabla 'produccion_agua' en Supabase con el siguiente SQL:
+        /*
+        CREATE TABLE produccion_agua (
+            id BIGSERIAL PRIMARY KEY,
+            botellones INTEGER NOT NULL,
+            fecha DATE NOT NULL,
+            timestamp TIMESTAMPTZ DEFAULT NOW(),
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        );
+        
+        -- Habilitar Row Level Security (opcional pero recomendado)
+        ALTER TABLE produccion_agua ENABLE ROW LEVEL SECURITY;
+        
+        -- Política para permitir todas las operaciones (ajusta según tus necesidades)
+        CREATE POLICY "Permitir todas las operaciones" ON produccion_agua
+        FOR ALL USING (true);
+        */
+        
+        // Inicializar cliente de Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Inicializar fecha actual
+        document.getElementById('fecha').valueAsDate = new Date();
+        document.getElementById('fechaInicio').valueAsDate = new Date();
+        document.getElementById('fechaFin').valueAsDate = new Date();
+
+        // Inicializar la aplicación
+        window.onload = async function() {
+            await inicializarSupabase();
+            await actualizarResumenHoy();
+            await mostrarUltimosRegistros();
+        };
+        
+        // Inicializar Supabase y crear tabla si no existe
+        async function inicializarSupabase() {
+            try {
+                // Verificar conexión
+                const { data, error } = await supabase
+                    .from('produccion_agua')
+                    .select('*')
+                    .limit(1);
+                    
+                if (error && error.code === 'PGRST116') {
+                    console.log('Tabla no existe. Necesitas crear la tabla en Supabase.');
+                    alert('⚠️ Configura primero tu proyecto de Supabase y actualiza las credenciales.');
+                }
+            } catch (error) {
+                console.error('Error conectando a Supabase:', error);
+                alert('⚠️ Error de conexión. Verifica tu configuración de Supabase.');
+            }
+        }
+
+        // Cambiar entre secciones
+        function mostrarSeccion(seccion) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.menu-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remover clase active de todos los botones
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(seccion).classList.add('active');
+            
+            // Activar el botón correspondiente
+            event.target.classList.add('active');
+            
+            // Si es la sección de registro, actualizar datos
+            if (seccion === 'registro') {
+                actualizarResumenHoy();
+                mostrarUltimosRegistros();
+            }
+        }
+
+        // Obtener datos de Supabase
+        async function obtenerDatos() {
+            try {
+                const { data, error } = await supabase
+                    .from('produccion_agua')
+                    .select('*')
+                    .order('fecha', { ascending: false });
+                    
+                if (error) {
+                    console.error('Error obteniendo datos:', error);
+                    // Fallback a localStorage si hay error
+                    const datos = localStorage.getItem('produccionAgua');
+                    return datos ? JSON.parse(datos) : [];
+                }
+                
+                return data || [];
+            } catch (error) {
+                console.error('Error conectando a Supabase:', error);
+                // Fallback a localStorage
+                const datos = localStorage.getItem('produccionAgua');
+                return datos ? JSON.parse(datos) : [];
+            }
+        }
+
+        // Guardar datos en Supabase
+        async function guardarDatos(nuevaProduccion) {
+            try {
+                const { data, error } = await supabase
+                    .from('produccion_agua')
+                    .insert([nuevaProduccion])
+                    .select();
+                    
+                if (error) {
+                    console.error('Error guardando en Supabase:', error);
+                    // Fallback a localStorage
+                    const datosLocales = localStorage.getItem('produccionAgua');
+                    const datos = datosLocales ? JSON.parse(datosLocales) : [];
+                    datos.push(nuevaProduccion);
+                    localStorage.setItem('produccionAgua', JSON.stringify(datos));
+                    return datos;
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('Error conectando a Supabase:', error);
+                // Fallback a localStorage
+                const datosLocales = localStorage.getItem('produccionAgua');
+                const datos = datosLocales ? JSON.parse(datosLocales) : [];
+                datos.push(nuevaProduccion);
+                localStorage.setItem('produccionAgua', JSON.stringify(datos));
+                return datos;
+            }
+        }
+
+        // Actualizar resumen del día actual
+        async function actualizarResumenHoy() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const datos = await obtenerDatos();
+            const produccionHoy = datos.filter(item => item.fecha === hoy);
+            const totalHoy = produccionHoy.reduce((sum, item) => sum + item.botellones, 0);
+            
+            document.getElementById('todayTotal').textContent = totalHoy;
+        }
+
+        // Mostrar últimos registros
+        async function mostrarUltimosRegistros() {
+            const datos = await obtenerDatos();
+            const ultimosRegistros = datos.slice(0, 5); // Primeros 5 registros (ya ordenados por fecha desc)
+            const recentList = document.getElementById('recentList');
+            
+            if (ultimosRegistros.length === 0) {
+                recentList.innerHTML = '<p style="text-align: center; color: #666;">No hay registros recientes</p>';
+                return;
+            }
+            
+            recentList.innerHTML = '';
+            ultimosRegistros.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'production-item';
+                
+                // Formatear fecha y hora
+                const fechaRegistro = new Date(item.fecha).toLocaleDateString('es-ES');
+                const horaRegistro = item.timestamp ? new Date(item.timestamp).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'}) : 
+                                   (item.created_at ? new Date(item.created_at).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'}) : '');
+                
+                div.innerHTML = `
+                    <div>
+                        <span>${fechaRegistro}</span>
+                        ${horaRegistro ? `<br><small style="color: #666; font-size: 0.85em;">${horaRegistro}</small>` : ''}
+                    </div>
+                    <span style="font-weight: bold; color: #2196F3;">${item.botellones} bot.</span>
+                `;
+                recentList.appendChild(div);
+            });
+        }
+
+        // Registrar nueva producción
+        async function registrarProduccion() {
+            const botellones = parseInt(document.getElementById('botellones').value);
+            const fecha = document.getElementById('fecha').value;
+            
+            if (!botellones || botellones <= 0) {
+                alert('⚠️ Por favor ingresa una cantidad válida de botellones');
+                return;
+            }
+            
+            if (!fecha) {
+                alert('⚠️ Por favor selecciona una fecha');
+                return;
+            }
+            
+            const nuevaProduccion = {
+                botellones: botellones,
+                fecha: fecha,
+                timestamp: new Date().toISOString(),
+                created_at: new Date().toISOString()
+            };
+            
+            try {
+                await guardarDatos(nuevaProduccion);
+                
+                // Mostrar mensaje de éxito
+                const successMessage = document.getElementById('successMessage');
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+                
+                // Limpiar campo de botellones
+                document.getElementById('botellones').value = '';
+                
+                // Actualizar resumen y últimos registros
+                await actualizarResumenHoy();
+                await mostrarUltimosRegistros();
+            } catch (error) {
+                console.error('Error registrando producción:', error);
+                alert('⚠️ Error al registrar la producción. Inténtalo de nuevo.');
+            }
+        }
+
+        // Mostrar producción de hoy
+        async function mostrarProduccionHoy() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const datos = await obtenerDatos();
+            const produccionHoy = datos.filter(item => item.fecha === hoy);
+            
+            mostrarEstadisticas(produccionHoy, 'Producción de Hoy');
+        }
+
+        // Mostrar producción del mes actual
+        async function mostrarProduccionMes() {
+            const ahora = new Date();
+            const año = ahora.getFullYear();
+            const mes = ahora.getMonth();
+            const datos = await obtenerDatos();
+            
+            const produccionMes = datos.filter(item => {
+                const fechaItem = new Date(item.fecha);
+                return fechaItem.getFullYear() === año && fechaItem.getMonth() === mes;
+            });
+            
+            mostrarEstadisticas(produccionMes, 'Producción del Mes');
+        }
+
+        // Mostrar producción por rango de fechas
+        async function mostrarProduccionRango() {
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            
+            if (!fechaInicio || !fechaFin) {
+                alert('⚠️ Por favor selecciona ambas fechas');
+                return;
+            }
+            
+            if (fechaInicio > fechaFin) {
+                alert('⚠️ La fecha de inicio debe ser anterior a la fecha fin');
+                return;
+            }
+            
+            const datos = await obtenerDatos();
+            const produccionRango = datos.filter(item => 
+                item.fecha >= fechaInicio && item.fecha <= fechaFin
+            );
+            
+            mostrarEstadisticas(produccionRango, `Producción del ${fechaInicio} al ${fechaFin}`);
+        }
+
+        // Mostrar estadísticas
+        function mostrarEstadisticas(datos, titulo) {
+            const statsContainer = document.getElementById('statsContainer');
+            const totalBotellones = datos.reduce((sum, item) => sum + item.botellones, 0);
+            
+            // Calcular días únicos
+            const fechasUnicas = [...new Set(datos.map(item => item.fecha))];
+            const diasRegistrados = fechasUnicas.length;
+            const promedioDiario = diasRegistrados > 0 ? Math.round(totalBotellones / diasRegistrados) : 0;
+            
+            document.getElementById('totalBotellones').textContent = totalBotellones;
+            document.getElementById('promedioDiario').textContent = promedioDiario;
+            document.getElementById('diasRegistrados').textContent = diasRegistrados;
+            
+            // Mostrar lista de producciones
+            const productionList = document.getElementById('productionList');
+            productionList.innerHTML = '';
+            
+            // Agrupar por fecha y sumar
+            const produccionPorFecha = {};
+            datos.forEach(item => {
+                if (produccionPorFecha[item.fecha]) {
+                    produccionPorFecha[item.fecha] += item.botellones;
+                } else {
+                    produccionPorFecha[item.fecha] = item.botellones;
+                }
+            });
+            
+            // Ordenar por fecha descendente
+            const fechasOrdenadas = Object.keys(produccionPorFecha).sort().reverse();
+            
+            fechasOrdenadas.forEach(fecha => {
+                const div = document.createElement('div');
+                div.className = 'production-item';
+                div.innerHTML = `
+                    <span>${new Date(fecha).toLocaleDateString('es-ES')}</span>
+                    <span style="font-weight: bold; color: #2196F3;">${produccionPorFecha[fecha]} botellones</span>
+                `;
+                productionList.appendChild(div);
+            });
+            
+            statsContainer.style.display = 'block';
+            statsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Permitir Enter en el campo de botellones
+        document.getElementById('botellones').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                registrarProduccion();
+            }
+        });
+    </script>
+</body>
+</html>
