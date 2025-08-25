@@ -116,6 +116,34 @@
             transition: all 0.3s ease;
         }
 
+        #botellones {
+            padding: 18px 16px;
+            border: 3px solid #007bff;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+            min-height: 56px;
+            text-align: center;
+        }
+        
+        #botellones:focus {
+            outline: none;
+            border-color: #0056b3;
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.3), 0 6px 20px rgba(0, 123, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        #botellones:hover {
+            border-color: #0056b3;
+            box-shadow: 0 6px 16px rgba(0, 123, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
         input[type="number"]:focus, input[type="date"]:focus {
             outline: none;
             border-color: #2196F3;
