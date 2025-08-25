@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test PWA - Control Agua</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2196F3">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success { background: rgba(76, 175, 80, 0.3); }
+        .error { background: rgba(244, 67, 54, 0.3); }
+        .warning { background: rgba(255, 152, 0, 0.3); }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        #installBtn {
+            background: #FF5722;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            border-radius: 50px;
+            padding: 20px;
+            font-size: 18px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 87, 34, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0); }
+        }
+        .log {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test PWA - Control Agua</h1>
+        <p>Esta página está diseñada para probar la instalabilidad PWA</p>
+        
+        <div id="status"></div>
+        
+        <button onclick="testPWA()">🔍 Probar PWA</button>
+        <button onclick="forceInstall()">📱 Forzar Instalación</button>
+        <button onclick="clearAll()">🗑️ Limpiar Todo</button>
+        
+        <div id="logs" class="log"></div>
+    </div>
+    
+    <script>
+        let deferredPrompt;
+        let installAttempts = 0;
+        const statusDiv = document.getElementById('status');
+        const logsDiv = document.getElementById('logs');
+        
+        function log(message) {
+            console.log(message);
+            logsDiv.innerHTML += message + '<br>';
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        
+        function showStatus(message, type) {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            statusDiv.appendChild(div);
+        }
+        
+        async function testPWA() {
+            statusDiv.innerHTML = '';
+            logsDiv.innerHTML = '';
+            
+            log('🔍 Iniciando test PWA...');
+            
+            // Test 1: HTTPS
+            const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
+            showStatus(`HTTPS/Localhost: ${isSecure ? '✅' : '❌'}`, isSecure ? 'success' : 'error');
+            log(`HTTPS: ${isSecure}`);
+            
+            // Test 2: Service Worker
+            const swSupported = 'serviceWorker' in navigator;
+            showStatus(`Service Worker: ${swSupported ? '✅' : '❌'}`, swSupported ? 'success' : 'error');
+            log(`SW Supported: ${swSupported}`);
+            
+            if (swSupported) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    showStatus('SW Registrado: ✅', 'success');
+                    log(`SW Registrado: ${registration.scope}`);
+                } catch (error) {
+                    showStatus('SW Error: ❌', 'error');
+                    log(`SW Error: ${error.message}`);
+                }
+            }
+            
+            // Test 3: Manifest
+            try {
+                const response = await fetch('/manifest.json');
+                const manifest = await response.json();
+                showStatus('Manifest: ✅', 'success');
+                log(`Manifest: ${manifest.name}`);
+                log(`Display: ${manifest.display}`);
+                log(`Icons: ${manifest.icons.length}`);
+            } catch (error) {
+                showStatus('Manifest: ❌', 'error');
+                log(`Manifest Error: ${error.message}`);
+            }
+            
+            // Test 4: Standalone
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            showStatus(`Standalone: ${isStandalone ? '✅ (Ya instalada)' : '⚠️ (No instalada)'}`, isStandalone ? 'success' : 'warning');
+            log(`Standalone: ${isStandalone}`);
+            
+            // Test 5: beforeinstallprompt
+            showStatus(`Install Prompt: ${deferredPrompt ? '✅' : '⚠️'}`, deferredPrompt ? 'success' : 'warning');
+            log(`Deferred Prompt: ${!!deferredPrompt}`);
+            
+            // Test 6: User Agent
+            log(`User Agent: ${navigator.userAgent}`);
+            
+            // Simular criterios adicionales
+            setTimeout(() => {
+                if (!deferredPrompt && !isStandalone) {
+                    log('⚠️ beforeinstallprompt no detectado');
+                    log('💡 Intentando disparar manualmente...');
+                    
+                    // Crear botón manual
+                    createManualInstallButton();
+                }
+            }, 3000);
+        }
+        
+        function createManualInstallButton() {
+            if (!document.getElementById('installBtn')) {
+                const btn = document.createElement('button');
+                btn.id = 'installBtn';
+                btn.innerHTML = '📱 Instalar';
+                btn.onclick = forceInstall;
+                document.body.appendChild(btn);
+                log('✅ Botón manual creado');
+            }
+        }
+        
+        function forceInstall() {
+            installAttempts++;
+            log(`🔄 Intento de instalación #${installAttempts}`);
+            
+            if (deferredPrompt) {
+                log('✅ Usando prompt nativo');
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    log(`Resultado: ${choiceResult.outcome}`);
+                    if (choiceResult.outcome === 'accepted') {
+                        log('🎉 Usuario aceptó la instalación');
+                    } else {
+                        log('😞 Usuario rechazó la instalación');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                log('❌ No hay prompt disponible');
+                
+                // Mostrar instrucciones manuales
+                const instructions = `
+                📱 INSTALACIÓN MANUAL:
+                
+                Chrome/Edge:
+                • Menú (⋮) → "Instalar Control Agua..."
+                • O busca el ícono 📱 en la barra de direcciones
+                
+                Firefox:
+                • Menú → "Instalar esta aplicación"
+                
+                Safari (iOS):
+                • Compartir → "Añadir a pantalla de inicio"
+                
+                Android:
+                • Menú → "Añadir a pantalla de inicio"
+                `;
+                
+                alert(instructions);
+                log('📋 Instrucciones manuales mostradas');
+            }
+        }
+        
+        function clearAll() {
+            // Limpiar cache
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+            
+            // Limpiar localStorage
+            localStorage.clear();
+            
+            log('🗑️ Cache y localStorage limpiados');
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+        
+        // Event Listeners
+        window.addEventListener('beforeinstallprompt', (e) => {
+            log('🎉 beforeinstallprompt detectado!');
+            e.preventDefault();
+            deferredPrompt = e;
+            createManualInstallButton();
+        });
+        
+        window.addEventListener('appinstalled', (evt) => {
+            log('🎉 App instalada exitosamente!');
+            const btn = document.getElementById('installBtn');
+            if (btn) btn.remove();
+        });
+        
+        // Auto-test al cargar
+        window.addEventListener('load', () => {
+            setTimeout(testPWA, 1000);
+        });
+    </script>
+</body>
+</html>
