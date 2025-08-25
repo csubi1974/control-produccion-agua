@@ -610,13 +610,22 @@
                 
                 // Formatear fecha y hora
                 const fechaRegistro = new Date(item.fecha).toLocaleDateString('es-ES');
-                const horaRegistro = item.timestamp ? new Date(item.timestamp).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'}) : 
-                                   (item.created_at ? new Date(item.created_at).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'}) : '');
+                
+                // Obtener hora de ingreso del registro (timestamp, created_at, o hora actual como fallback)
+                let horaRegistro = '';
+                if (item.timestamp) {
+                    horaRegistro = new Date(item.timestamp).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
+                } else if (item.created_at) {
+                    horaRegistro = new Date(item.created_at).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
+                } else {
+                    // Si no hay timestamp, mostrar hora actual como referencia
+                    horaRegistro = new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
+                }
                 
                 div.innerHTML = `
                     <div>
                         <span>${fechaRegistro}</span>
-                        ${horaRegistro ? `<br><small style="color: #666; font-size: 0.85em;">${horaRegistro}</small>` : ''}
+                        <br><small style="color: #666; font-size: 0.85em;">⏰ ${horaRegistro}</small>
                     </div>
                     <span style="font-weight: bold; color: #2196F3;">${item.botellones} bot.</span>
                 `;
