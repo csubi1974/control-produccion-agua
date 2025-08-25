@@ -61,7 +61,7 @@ FOR ALL USING (true);
 
 ### 2. Configurar Credenciales
 
-En el archivo `Produccion.html`, actualiza las siguientes variables con tus credenciales de Supabase:
+En el archivo `index.html`, actualiza las siguientes variables con tus credenciales de Supabase:
 
 ```javascript
 const SUPABASE_URL = 'TU_SUPABASE_URL';
@@ -70,7 +70,7 @@ const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
 
 ### 3. Ejecutar la Aplicación
 
-Simplemente abre el archivo `Produccion.html` en tu navegador web.
+Simplemente abre el archivo `index.html` en tu navegador web o despliega en Vercel.
 
 ## 📊 Estructura de Datos
 
