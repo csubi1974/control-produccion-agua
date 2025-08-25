@@ -1,0 +1,28 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2196F3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1976D2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="dropGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E3F2FD;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#BBDEFB;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fondo con esquinas redondeadas -->
+  <rect width="192" height="192" rx="24" ry="24" fill="url(#bgGradient)"/>
+  
+  <!-- Gota de agua principal -->
+  <path d="M96 40 C96 40, 136 80, 136 120 C136 142.091, 118.091 160, 96 160 C73.909 160, 56 142.091, 56 120 C56 80, 96 40, 96 40 Z" fill="url(#dropGradient)" stroke="white" stroke-width="3"/>
+  
+  <!-- Brillo en la gota -->
+  <ellipse cx="88" cy="100" rx="12" ry="18" fill="white" opacity="0.6"/>
+  
+  <!-- Ondas de agua -->
+  <path d="M30 140 Q45 135, 60 140 T90 140" stroke="white" stroke-width="2" fill="none" opacity="0.7"/>
+  <path d="M102 140 Q117 135, 132 140 T162 140" stroke="white" stroke-width="2" fill="none" opacity="0.7"/>
+  
+  <!-- Texto pequeño -->
+  <text x="96" y="180" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="white">CONTROL</text>
+</svg>
